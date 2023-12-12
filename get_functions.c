@@ -19,10 +19,11 @@ void display_prompt(void)
  * read_input - Reads user input.
  * @buffer: Buffer to store the input.
  * Return: Number of characters read.
+ * @size: Size of the buffer.
  */
-int read_input(char *buffer)
+int read_input(char *buffer, size_t size)
 {
-	if (fgets(buffer, MAX_INPUT_SIZE, stdin) == NULL)
+	if (fgets(buffer, size, stdin) == NULL)
 	{
 		if (feof(stdin))
 		{
@@ -54,7 +55,7 @@ void execute_command(char *command)
 	else if (pid == 0)
 	{
 		execlp(command, command, (char *)NULL);
-		fprintf(stderr, "%s: %d: %s: not found\n", __FILE__, __LINE__, command);
+		perror("exec");
 		exit(EXIT_FAILURE);
 
 	}
@@ -98,7 +99,7 @@ int main(int argc, char *argv[])
 		while (1)
 		{
 			display_prompt();
-			if (read_input(input_buffer) == 0)
+			if (read_input(input_buffer, sizeof(input_buffer)) == 0)
 				break;
 
 
@@ -108,10 +109,10 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		while (read_input(input_buffer) != 0)
+		while (read_input(input_buffer, sizeof(input_buffer)) != 0)
 		{
 			input_buffer[strcspn(input_buffer, "\n")] = '\0';
-			execute_command(input_buffer);
+			run_command(input_buffer);
 		}
 	}
 
