@@ -2,7 +2,10 @@
 #include "myshell.h"
 #include <stdlib.h>
 #include <sched.h>
+#include <string.h>
 #include <sys/types.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
 int main(void)
 {
@@ -57,7 +60,7 @@ void execute_command(char *command)
         int status;
         waitpid(pid, &status, 0);
         if (WIFEXITED(status))
-            printf("Child process exited with status %d\n", WEXITEDSTATUS(status));
+            printf("Child process exited with status %d\n", WEXITSTATUS(status));
 
         else
             printf("Child process did not exit normally\n");
