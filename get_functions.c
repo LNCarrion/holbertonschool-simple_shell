@@ -7,11 +7,19 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
+/**
+ * display_prompt - Displays the shell prompt.
+ */
 void display_prompt(void)
 {
     printf("simple_shell> ");
 }
 
+/**
+ * read_input - Reads user input.
+ * @buffer: Buffer to store the input.
+ * Return: Number of characters read.
+ */
 int read_input(char *buffer)
 {
     if (fgets(buffer, MAX_INPUT_SIZE, stdin) == NULL)
@@ -30,6 +38,10 @@ int read_input(char *buffer)
     return strlen(buffer);
 }
 
+/**
+ * execute_command - Executes a shell command.
+ * @command: The command to be executed.
+ */
 void execute_command(char *command)
 {
     pid_t pid = fork();
@@ -58,11 +70,21 @@ void execute_command(char *command)
     }
 }
 
+/**
+ * run_command - Run a command in non-interactive mode.
+ * @command: The command to be executed.
+ */
 void run_command(char *command)
 {
     execute_command(command);
 }
 
+/**
+ * main - Entry point for the simple shell.
+ * @argc: Number of command-line arguments.
+ * @argv: Array of command-line argument strings.
+ * Return: 0 on success.
+ */
 int main(int argc, char *argv[])
 {
     
