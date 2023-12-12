@@ -4,7 +4,7 @@
 #define MAX_INPUT_SIZE 1024
 
 void display_prompt(void);
-int read_input(char *buffer);
+int read_input(char *buffer, size_t size);
 void execute_command(char *command);
 
 
