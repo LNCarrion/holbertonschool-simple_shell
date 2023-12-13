@@ -1,4 +1,4 @@
-#include "myshell.h"
+#include "shell.h"
 #include "get_function.c"
 
 /**
@@ -131,9 +131,3 @@ char **arg_list(int isinteractive)
 	free_double(arglist);
 	return (n);
 }
-
-
-
-
-
-
