@@ -1,13 +1,8 @@
-#include <stdio.h>
-#include "myshell.h"
-#include <stdlib.h>
-#include <sched.h>
-#include <string.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <termio.h>
+#include "simple_shell.h"
 
+/**
+ * disable_input_buffering - Disables input buffering and echo.
+ */
 void disable_input_buffering(void)
 {
 	struct termios term;
@@ -23,6 +18,7 @@ void enable_input_buffering(void)
 	term.c_lflag |= ICANON | ECHO;
 	tcsetattr(STDERR_FILENO, TCSANOW, &term);
 }
+
 /**
  * display_prompt - Displays the shell prompt.
  */
