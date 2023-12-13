@@ -6,13 +6,30 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <termio.h>
 
+void disable_input_buffering(void)
+{
+	struct termios term;
+	tcgetattr(STDIN_FILENO, &term);
+	term.c_lflag &= ~(ICANON | ECHO);
+	tcsetattr(STDIN_FILENO,TCSANOW, &term);
+}
+
+void enable_input_buffering(void)
+{
+	struct termios term;
+	tcgetattr(STDIN_FILENO, &term);
+	term.c_lflag |= ICANON | ECHO;
+	tcsetattr(STDERR_FILENO, TCSANOW, &term);
+}
 /**
  * display_prompt - Displays the shell prompt.
  */
 void display_prompt(void)
 {
-	printf("simple_shell> ");
+	printf("#cisfun$ ");
+	fflush(stdout);
 }
 
 /**
@@ -23,20 +40,43 @@ void display_prompt(void)
  */
 int read_input(char *buffer, size_t size)
 {
-	if (fgets(buffer, size, stdin) == NULL)
-	{
-		if (feof(stdin))
-		{
-			printf("\n");
-			exit(EXIT_SUCCESS);
-		}
-		else
-		{
-			perror("Error reading input");
-			exit(EXIT_FAILURE);
-		}
-	}
-	return (strlen(buffer));
+    int c;
+    size_t i = 0;
+
+    while ((c = getchar()) != '\n' && c != EOF)
+    {
+        if (c == 27) 
+        {
+            getchar(); 
+            switch (getchar())
+            {
+            case 'A': 
+                
+                break;
+            case 'B': 
+
+                break;
+            case 'C': 
+                putchar(27); 
+                putchar('[');
+                putchar('C'); 
+                break;
+            case 'D': 
+                putchar(27); 
+                putchar('[');
+                putchar('D'); 
+                break;
+            }
+        }
+        else
+        {
+            buffer[i++] = c;
+            putchar(c); 
+        }
+    }
+
+    buffer[i] = '\0'; 
+    return (i);
 }
 
 /**
@@ -94,6 +134,8 @@ int main(int argc, char *argv[])
 	(void)argc;
 	(void)argv;
 
+	disable_input_buffering();
+
 	if (isatty(fileno(stdin)))
 	{
 		while (1)
@@ -116,6 +158,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	enable_input_buffering();
 
 	return (0);
 }
