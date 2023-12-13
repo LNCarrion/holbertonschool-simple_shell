@@ -14,7 +14,7 @@
 
 void display_prompt(void);
 int read_input(char *buffer, size_t size);
+void run_command(char *command);
 void execute_command(char *command);
-
 
 #endif /* SIMPLE_SHELL_H */
