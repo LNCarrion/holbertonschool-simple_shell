@@ -1,125 +1,91 @@
 #include "simple_shell.h"
 
-/**
- * disable_input_buffering - Disables input buffering and echo.
- */
-void disable_input_buffering(void)
-{
-	struct termios term;
-
-	tcgetattr(STDIN_FILENO, &term);
-	term.c_lflag &= ~(ICANON | ECHO);
-	tcsetattr(STDIN_FILENO, TCSANOW, &term);
-}
-
-/**
- * enable_input_buffering - Enables input buffering and echo.
- */
-void enable_input_buffering(void)
-{
-	struct termios term;
-
-	tcgetattr(STDIN_FILENO, &term);
-	term.c_lflag |= ICANON | ECHO;
-	tcsetattr(STDERR_FILENO, TCSANOW, &term);
-}
-
-/**
- * display_prompt - Displays the shell prompt.
- */
 void display_prompt(void)
 {
-	printf("#cisfun$ ");
-	fflush(stdout);
+	printf("simple_shell>");
 }
 
-/**
- * read_input - Reads user input.
- * @buffer: Buffer to store the input.
- * Return: Number of characters read.
- * @size: Size of the buffer.
- */
-int read_input(char *buffer, __attribute__((unused))size_t size)
+ssize_t read_input(char **buffer, size_t *size)
 {
-	int c;
-	size_t i = 0;
-	
-
-	while ((c = getchar()) != '\n' && c != EOF)
+	ssize_t bytesRead = getline(buffer, size, stdin);
+	if (bytesRead == -1)
 	{
-		if (c == 27)
+		if (feof(stdin))
 		{
-			getchar();
-			switch (getchar())
-			{
-				case 'A':
-
-					break;
-				case 'B':
-
-					break;
-				case 'C':
-					putchar(27);
-					putchar('[');
-					putchar('C');
-					break;
-				case 'D':
-					putchar(27);
-					putchar('[');
-					putchar('D');
-					break;
-			}
+			printf("\n");
+			exit(EXIT_SUCCESS);
 		}
 		else
 		{
-			buffer[i++] = c;
-			putchar(c);
+			perror("Error reading input");
+			exit(EXIT_FAILURE);
 		}
 	}
-
-	buffer[i] = '\0';
-	return (i);
+return (bytesRead);
 }
 
-
-/**
- * main - Entry point for the simple shell.
- * @argc: Number of command-line arguments.
- * @argv: Array of command-line argument strings.
- * Return: 0 on success.
- */
-int main(int argc, char *argv[])
+void execute_command(TokenList *tokens)
 {
+	pid_t pid = fork();
 
-	char input_buffer[MAX_INPUT_SIZE];
-	(void)argc;
-	(void)argv;
-
-	disable_input_buffering();
-
-	if (isatty(fileno(stdin)))
+	if (pid == -1)
 	{
-		while (1)
-		{
-			display_prompt();
-			if (read_input(input_buffer, sizeof(input_buffer)) == 0)
-				break;
-
-
-			input_buffer[strcspn(input_buffer, "\n")] = '\0';
-			execute_command(input_buffer);
-		}
+		perror("fork");
+		exit(EXIT_FAILURE);
+	
 	}
+	else if (pid == 0)
+	{
+		struct stat file_stat;
+		if (stat(tokens->tokens[0], &file_stat) == -1)
+		{
+			perror("stat");
+			_exit(EXIT_FAILURE);
+		}
+
+		if (execve(tokens->tokens[0], tokens->tokens, NULL) == -1)
+		{
+			perror("execve");
+			_exit(EXIT_FAILURE);
+		}
+	}	
 	else
 	{
-		while (read_input(input_buffer, sizeof(input_buffer)) != 0)
-		{
-			input_buffer[strcspn(input_buffer, "\n")] = '\0';
-			run_command(input_buffer);
-		}
+		int status;
+		waitpid(pid, &status, 0);
+		if (WIFEXITED(status))
+			printf("Child process exited with status %d\n", WEXITSTATUS(status));
+		else
+			printf("child process did not exit normally\n");
 	}
+}
 
-	enable_input_buffering();
+void run_command(char *command)
+{
+	TokenList tokens = tokenize_input(command);
+	execute_command(&tokens);
+	free_token_list(&tokens);
+}
+
+int main(void)
+{
+	char *input_buffer = NULL;
+	size_t input_size = 0;
+	ssize_t bytesRead;
+
+	while (1)
+	{
+		display_prompt();
+		bytesRead = read_input(&input_buffer, &input_size);
+		
+		if (bytesRead == 0)
+		{
+			break;
+		}
+		input_buffer[strcspn(input_buffer, "\n")] = '\0';
+		run_command(input_buffer);
+	}
+	free(input_buffer);
 
 	return (0);
 }

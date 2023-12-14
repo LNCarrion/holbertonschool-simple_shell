@@ -1,20 +1,29 @@
 #ifndef SIMPLE_SHELL_H
 #define SIMPLE_SHELL_H
 
-#define MAX_INPUT_SIZE 1024
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sched.h>
-#include <sys/types.h>
 #include <unistd.h>
+#include <sys/types.h>
 #include <sys/wait.h>
-#include <termio.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <dirent.h>
+
+#define MAX_INPUT_SIZE 1024
+
+typedef struct 
+{
+    char **tokens;
+    size_t size;
+} TokenList;
 
 void display_prompt(void);
-int read_input(char *buffer, size_t size);
+ssize_t read_input(char **buffer, size_t *size);
+TokenList tokenize_input(char *input);
+void free_token_list(TokenList *tokens);
+void execute_command(TokenList *tokens);
 void run_command(char *command);
-void execute_command(char *command);
 
 #endif /* SIMPLE_SHELL_H */
