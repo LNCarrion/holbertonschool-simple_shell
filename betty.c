@@ -8,7 +8,7 @@ int main(void)
 {
 	printf("Hello, Betty!\n");
 		return (0);
-}#include <stdio.h>
+}
 
 /**
 * main - entry point
@@ -18,7 +18,7 @@ int main(void)
 {
 	printf("Hello, Betty!\n");
 		return (0);
-}#include <stdio.h>
+}
 
 /**
 * main - entry point
