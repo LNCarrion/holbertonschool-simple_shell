@@ -60,9 +60,6 @@ char *cut_env(char *);
 /* prompt */
 int print_str(char *);
 int builtin_finder(char **);
-
-#endif /*_SHELL_H_*/
-
 void display_prompt(void);
 int read_input(char *buffer, size_t size);
 void execute_command(char *command);
