@@ -1,5 +1,5 @@
 #include "simple_shell.h"
-
+#include "shell.h"
 /**
  * display_prompt - Displays the shell prompt.
  */
